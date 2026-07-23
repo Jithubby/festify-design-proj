@@ -1,0 +1,43 @@
+<!DOCTYPE html> 
+<html> 
+<head> 
+    <!-- title which is shown in browser tab -->
+    <title>Festify - Event Decor Suggestions</title> 
+    <!-- links to external CSS file for styling -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"> 
+</head> 
+<body> 
+    <div class="container"> 
+        <!-- Main Heading -->
+        <h1>🎨 Festify Event Decor</h1> 
+        <p>Share and discover creative decor ideas for your events!</p><!-- Form that sends data to /add when submitted -->
+        <form action="/add" method="POST"> 
+            <!-- decor name field -->
+            <label>Decor Name:</label> 
+            <input type="text" name="decor_name" placeholder="e.g. Rustic Wedding Centerpiece" required> 
+            
+            <!-- event name field -->
+            <label>Event Type:</label> 
+            <input type="text" name="event_type" placeholder="e.g. Wedding, Birthday, Corporate" required> 
+            
+            <!-- color scheme field -->
+            <label>Color Scheme:</label> 
+            <input type="text" name="color_scheme" placeholder="e.g. Blush Pink & Gold" required> 
+            
+            <!-- description text field -->
+            <label>Description:</label> 
+            <textarea name="description" placeholder="Describe the decor idea..." required></textarea> 
+            
+            <!-- price field, number only -->
+            <label>Price Range ($):</label> 
+            <input type="number" name="price" placeholder="e.g. 150" step="0.01" required> 
+            
+            <!-- submit button -->
+            <button type="submit">Add Decor Suggestion</button> 
+        </form> 
+        
+        <!-- link to view all submitted decor ideas -->
+        <a href="/decor">View All Decor Ideas</a> 
+    </div> 
+</body> 
+</html>
