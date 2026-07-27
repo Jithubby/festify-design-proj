@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Festify - Decor Gallery</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- navigation bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">🎨 Festify</a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/decor">Gallery</a>
+                <a href="/order">Order Now</a>
+                <a href="/login">Admin</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- main content -->
+    <div class="container">
+        <h1 class="page-title">Decor Gallery</h1>
+        <p class="subtitle">Browse decor ideas from our community and get inspired for your event</p>
+
+        <!-- unsplash inspiration section -->
+        <h2>✨ Featured Inspiration</h2>
+        <div class="inspiration-grid">
+            {% if unsplash_images %}
+                {% for image in unsplash_images %}
+                <div class="inspiration-card">
+                    <img src="{{ image.urls.small }}" alt="Decor inspiration">
+                    <p>📸 {{ image.user.name }}</p>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p>Loading inspiration images...</p>
+            {% endif %}
+        </div>
+
+        <!-- community decor suggestions -->
+        <h2>💡 Community Decor Ideas</h2>
+        <div class="decor-grid">
+            {% if decor_items %}
+                {% for decor in decor_items %}
+                <div class="decor-card">
+                    <h3>{{ decor[1] }}</h3>
+                    <p><strong>Event Type:</strong> {{ decor[2] }}</p>
+                    <p><strong>Color Scheme:</strong> {{ decor[3] }}</p>
+                    <p><strong>Description:</strong> {{ decor[4] }}</p>
+                    <p><strong>Price:</strong> ${{ decor[5] }}</p>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p>No decor suggestions yet. Be the first to <a href="/">add one</a>!</p>
+            {% endif %}
+        </div>
+
+        <!-- call to action -->
+        <div class="cta-section">
+            <h2>Have a Decor Idea?</h2>
+            <p>Share your decor suggestions with the community!</p>
+            <a href="/" class="btn btn-primary">Share Your Idea</a>
+        </div>
+    </div>
+
+    <!-- footer -->
+    <footer>
+        <p>&copy; 2024 Festify - Custom Event Decor. All rights reserved.</p>
+    </footer>
+</body>
+</html>
