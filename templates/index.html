@@ -8,6 +8,11 @@
 </head> 
 <body> 
     <div class="container"> 
+        {% if error %}
+<div class="error-message">
+    ⚠️ {{ error }}
+</div>
+{% endif %}
         <!-- Main Heading -->
         <h1>🎨 Festify Event Decor</h1> 
         <p>Share and discover creative decor ideas for your events!</p><!-- Form that sends data to /add when submitted -->
