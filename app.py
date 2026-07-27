@@ -1,19 +1,25 @@
-# Import Flask modules for web functionality
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, session
 import sqlite3
+import requests
+import os
 
-# Create Flask application instance
 app = Flask(__name__)
+app.secret_key = 'festify_secret_key'
 
-# Set the database filename
 DATABASE = "festify.db"
 
-# Function to create the database table if it doesn't exist
+# admin credentials (from SRS)
+ADMIN_USERNAME = "anita"
+ADMIN_PASSWORD = "decor2024"
+
+# unsplash api key (get from unsplash.com)
+UNSPLASH_ACCESS_KEY = "YOUR_UNSPLASH_ACCESS_KEY"
+
 def create_database():
     connection = sqlite3.connect(DATABASE)
     cursor = connection.cursor()
     
-    # SQL command to create a table for decor items
+    # table for decor suggestions (user submitted)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS decor (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -25,26 +31,69 @@ def create_database():
         )
     """)
     
-    # Save changes and close connection
+    # table for customer orders
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS orders (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            customer_name TEXT NOT NULL,
+            email TEXT NOT NULL,
+            phone TEXT,
+            event_type TEXT NOT NULL,
+            decor_style TEXT NOT NULL,
+            color_scheme TEXT,
+            event_date TEXT NOT NULL,
+            venue TEXT,
+            special_requests TEXT,
+            order_date TEXT NOT NULL
+        )
+    """)
+    
     connection.commit()
     connection.close()
 
-# Route for the homepage
+# unsplash api function
+def get_unsplash_images(query="event decor", count=6):
+    try:
+        url = "https://api.unsplash.com/search/photos"
+        headers = {"Authorization": f"Client-ID {UNSPLASH_ACCESS_KEY}"}
+        params = {"query": query, "per_page": count, "orientation": "landscape"}
+        response = requests.get(url, headers=headers, params=params)
+        if response.status_code == 200:
+            data = response.json()
+            return data.get('results', [])
+        return []
+    except:
+        return []
+
+# ===== ROUTES =====
+
 @app.route("/")
 def index():
-    # Display the index.html template
     return render_template("index.html")
+
+@app.route("/decor")
+def view_decor():
+    # get user submitted decor
+    connection = sqlite3.connect(DATABASE)
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM decor")
+    decor_items = cursor.fetchall()
+    connection.close()
+    
+    # get unsplash inspiration images
+    images = get_unsplash_images("event decoration ideas", 6)
+    
+    return render_template("decor.html", decor_items=decor_items, unsplash_images=images)
 
 @app.route("/add", methods=["POST"])
 def add_decor():
-    # get form data
     decor_name = request.form.get("decor_name")
     event_type = request.form.get("event_type")
     color_scheme = request.form.get("color_scheme")
     description = request.form.get("description")
     price = request.form.get("price")
     
-    # check if all fields are filled
+    # validations
     if not decor_name:
         return render_template("index.html", error="Decor Name is required")
     if not event_type:
@@ -56,64 +105,119 @@ def add_decor():
     if not price:
         return render_template("index.html", error="Price is required")
     
-    # check if decor_name contains only letters and spaces
+    # only letters and spaces for name, event, color
     if not all(char.isalpha() or char.isspace() for char in decor_name):
         return render_template("index.html", error="Decor Name must contain only letters and spaces")
-    
-    # check if event_type contains only letters and spaces
     if not all(char.isalpha() or char.isspace() for char in event_type):
         return render_template("index.html", error="Event Type must contain only letters and spaces")
     
-    # check if color_scheme contains only letters, spaces, and & symbol
-    allowed_chars = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ &")
-    if not all(char in allowed_chars for char in color_scheme):
+    allowed = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ &")
+    if not all(char in allowed for char in color_scheme):
         return render_template("index.html", error="Color Scheme must contain only letters, spaces, and &")
     
-    # check if description contains only letters, spaces, and basic punctuation
-    allowed_desc = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ .,!?-")
-    if not all(char in allowed_desc for char in description):
-        return render_template("index.html", error="Description must contain only letters, spaces, and basic punctuation")
-    
-    # check if price is a valid number
+    # price validation
     try:
         price_float = float(price)
     except ValueError:
         return render_template("index.html", error="Price must be a valid number")
-    
-    # check if price is greater than 0
     if price_float <= 0:
         return render_template("index.html", error="Price must be greater than $0")
     
-    # connect to database
     connection = sqlite3.connect(DATABASE)
     cursor = connection.cursor()
-    
-    # insert the new decor item
     cursor.execute("""
         INSERT INTO decor (decor_name, event_type, color_scheme, description, price)
         VALUES (?, ?, ?, ?, ?)
     """, (decor_name, event_type, color_scheme, description, price_float))
-    
     connection.commit()
     connection.close()
-
-    # redirect to decor page
-    return redirect("/decor")
     
-# Route to display all decor items
-@app.route("/decor")
-def view_decor():
-    # Connect to the database
+    return redirect("/decor")
+
+@app.route("/order")
+def order_form():
+    return render_template("order.html")
+
+@app.route("/submit_order", methods=["POST"])
+def submit_order():
+    customer_name = request.form.get("customer_name")
+    email = request.form.get("email")
+    phone = request.form.get("phone")
+    event_type = request.form.get("event_type")
+    decor_style = request.form.get("decor_style")
+    color_scheme = request.form.get("color_scheme")
+    event_date = request.form.get("event_date")
+    venue = request.form.get("venue")
+    special_requests = request.form.get("special_requests")
+    
+    if not customer_name:
+        return render_template("order.html", error="Name is required")
+    if not email:
+        return render_template("order.html", error="Email is required")
+    if not event_type:
+        return render_template("order.html", error="Event type is required")
+    if not decor_style:
+        return render_template("order.html", error="Decor style is required")
+    if not event_date:
+        return render_template("order.html", error="Event date is required")
+    
+    from datetime import datetime
+    order_date = datetime.now().strftime("%Y-%m-%d %H:%M")
+    
     connection = sqlite3.connect(DATABASE)
     cursor = connection.cursor()
-    cursor.execute("SELECT * FROM decor")
-    decor_items = cursor.fetchall()
-    # Get all records from the decor table
+    cursor.execute("""
+        INSERT INTO orders (customer_name, email, phone, event_type, decor_style, 
+                           color_scheme, event_date, venue, special_requests, order_date)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (customer_name, email, phone, event_type, decor_style, 
+          color_scheme, event_date, venue, special_requests, order_date))
+    connection.commit()
     connection.close()
-    # Display the decor.html template with the data
-    return render_template("decor.html", decor_items=decor_items)
+    
+    return render_template("confirmation.html", 
+                         order={
+                             'customer_name': customer_name,
+                             'email': email,
+                             'phone': phone,
+                             'event_type': event_type,
+                             'decor_style': decor_style,
+                             'color_scheme': color_scheme,
+                             'event_date': event_date,
+                             'venue': venue,
+                             'special_requests': special_requests
+                         })
 
-# Run the app when this file is executed directly
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+            session['logged_in'] = True
+            return redirect("/admin")
+        else:
+            return render_template("login.html", error="Invalid username or password")
+    return render_template("login.html")
+
+@app.route("/admin")
+def admin():
+    if not session.get('logged_in'):
+        return redirect("/login")
+    
+    connection = sqlite3.connect(DATABASE)
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM orders ORDER BY id DESC")
+    orders = cursor.fetchall()
+    connection.close()
+    
+    return render_template("admin.html", orders=orders)
+
+@app.route("/logout")
+def logout():
+    session.pop('logged_in', None)
+    return redirect("/login")
+
 if __name__ == "__main__":
     create_database()
     app.run(debug=True)
