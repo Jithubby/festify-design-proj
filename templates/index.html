@@ -1,48 +1,90 @@
-<!DOCTYPE html> 
-<html> 
-<head> 
-    <!-- title which is shown in browser tab -->
-    <title>Festify - Event Decor Suggestions</title> 
-    <!-- links to external CSS file for styling -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"> 
-</head> 
-<body> 
-    <div class="container"> 
-        {% if error %}
-<div class="error-message">
-    ⚠️ {{ error }}
-</div>
-{% endif %}
-        <!-- Main Heading -->
-        <h1>🎨 Festify Event Decor</h1> 
-        <p>Share and discover creative decor ideas for your events!</p><!-- Form that sends data to /add when submitted -->
-        <form action="/add" method="POST"> 
-            <!-- decor name field -->
-            <label>Decor Name:</label> 
-            <input type="text" name="decor_name" placeholder="e.g. Rustic Wedding Centerpiece" required> 
-            
-            <!-- event name field -->
-            <label>Event Type:</label> 
-            <input type="text" name="event_type" placeholder="e.g. Wedding, Birthday, Corporate" required> 
-            
-            <!-- color scheme field -->
-            <label>Color Scheme:</label> 
-            <input type="text" name="color_scheme" placeholder="e.g. Blush Pink & Gold" required> 
-            
-            <!-- description text field -->
-            <label>Description:</label> 
-            <textarea name="description" placeholder="Describe the decor idea..." required></textarea> 
-            
-            <!-- price field, number only -->
-            <label>Price Range ($):</label> 
-            <input type="number" name="price" placeholder="e.g. 150" step="0.01" required> 
-            
-            <!-- submit button -->
-            <button type="submit">Add Decor Suggestion</button> 
-        </form> 
-        
-        <!-- link to view all submitted decor ideas -->
-        <a href="/decor">View All Decor Ideas</a> 
-    </div> 
-</body> 
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Festify - Custom Event Decor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- navigation bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">🎨 Festify</a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/decor">Gallery</a>
+                <a href="/add-idea">Add Idea</a>
+                <a href="/order">Order Now</a>
+                <a href="/login">Admin</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- hero section -->
+    <header class="hero">
+        <div class="hero-content">
+            <h1>Transform Your Event with <span class="highlight">Beautiful Decor</span></h1>
+            <p>Browse creative decor ideas, get inspired, and order custom decorations for your next event.</p>
+            <div class="hero-buttons">
+                <a href="/decor" class="btn btn-primary">Browse Gallery</a>
+                <a href="/add-idea" class="btn btn-secondary">Share Your Idea</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- features section -->
+    <section class="features">
+        <h2>How It Works</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">💡</div>
+                <h3>Share Ideas</h3>
+                <p>Submit your decor ideas and inspire others</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🖼️</div>
+                <h3>Browse Gallery</h3>
+                <p>Explore decor ideas from the community</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📋</div>
+                <h3>Submit Order</h3>
+                <p>Order custom decor for your event</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">✨</div>
+                <h3>We Create</h3>
+                <p>We'll bring your vision to life</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- event types -->
+    <section class="events-section">
+        <h2>We Cater For</h2>
+        <div class="event-tags">
+            <span class="event-tag">Birthday</span>
+            <span class="event-tag">Wedding</span>
+            <span class="event-tag">Baby Shower</span>
+            <span class="event-tag">Engagement</span>
+            <span class="event-tag">Graduation</span>
+            <span class="event-tag">Corporate</span>
+        </div>
+    </section>
+
+    <!-- call to action -->
+    <section class="cta-section">
+        <h2>Ready to Get Started?</h2>
+        <p>Share your decor idea or order custom decorations for your event</p>
+        <div class="cta-buttons">
+            <a href="/add-idea" class="btn btn-primary">Share Your Idea</a>
+            <a href="/order" class="btn btn-secondary">Order Now</a>
+        </div>
+    </section>
+
+    <!-- footer -->
+    <footer>
+        <p>&copy; 2024 Festify - Custom Event Decor. All rights reserved.</p>
+    </footer>
+</body>
 </html>
