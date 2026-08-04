@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Festify - Admin Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- navigation bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">🎨 Festify</a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/decor">Gallery</a>
+                <a href="/add-idea">Submit Decor</a>
+                <a href="/order">Order Now</a>
+                <a href="/login">Admin</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- main content -->
+    <div class="container login-container">
+        <div class="login-box">
+            <h1>Admin Login</h1>
+            <p>Enter your credentials to view orders</p>
+
+            {% if error %}
+            <div class="error-message">⚠️ {{ error }}</div>
+            {% endif %}
+
+            <form action="/login" method="POST" class="login-form">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" name="username" placeholder="Enter username" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" name="password" placeholder="Enter password" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-large">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- footer -->
+    <footer>
+        <p>&copy; 2024 Festify - Custom Event Decor. All rights reserved.</p>
+    </footer>
+</body>
+</html>

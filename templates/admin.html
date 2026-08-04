@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Festify - Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- navigation bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">🎨 Festify</a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/decor">Gallery</a>
+                <a href="/add-idea">Submit Decor</a>
+                <a href="/order">Order Now</a>
+                <a href="/logout">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- main content -->
+    <div class="container">
+        <div class="admin-header">
+            <h1>Admin Dashboard</h1>
+            <p>View and manage all customer orders</p>
+            <span class="order-count">{{ orders|length }} Orders Received</span>
+        </div>
+
+        <!-- display orders -->
+        {% if orders %}
+        <div class="orders-list">
+            {% for order in orders %}
+            <div class="order-card">
+                <div class="order-header">
+                    <h3>Order #{{ order[0] }}</h3>
+                    <span class="order-date">{{ order[10] }}</span>
+                </div>
+                <div class="order-details">
+                    <div class="order-row">
+                        <strong>Customer:</strong> {{ order[1] }}
+                    </div>
+                    <div class="order-row">
+                        <strong>Email:</strong> {{ order[2] }}
+                    </div>
+                    <div class="order-row">
+                        <strong>Phone:</strong> {{ order[3] if order[3] else 'Not provided' }}
+                    </div>
+                    <div class="order-row">
+                        <strong>Event Type:</strong> {{ order[4] }}
+                    </div>
+                    <div class="order-row">
+                        <strong>Decor Style:</strong> {{ order[5] }}
+                    </div>
+                    <div class="order-row">
+                        <strong>Color Scheme:</strong> {{ order[6] if order[6] else 'Not specified' }}
+                    </div>
+                    <div class="order-row">
+                        <strong>Event Date:</strong> {{ order[7] }}
+                    </div>
+                    <div class="order-row">
+                        <strong>Venue:</strong> {{ order[8] if order[8] else 'Not specified' }}
+                    </div>
+                    <div class="order-row full-width">
+                        <strong>Special Requests:</strong>
+                        <p>{{ order[9] if order[9] else 'None' }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>No orders have been placed yet.</p>
+            <a href="/" class="btn btn-primary">Return Home</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- footer -->
+    <footer>
+        <p>&copy; 2024 Festify - Custom Event Decor. All rights reserved.</p>
+    </footer>
+</body>
+</html>

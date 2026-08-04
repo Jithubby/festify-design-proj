@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Festify - Place Your Order</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- navigation bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">🎨 Festify</a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/decor">Gallery</a>
+                <a href="/add-idea">Submit Decor</a>
+                <a href="/order">Order Now</a>
+                <a href="/login">Admin</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- main content -->
+    <div class="container">
+        <h1 class="page-title">Place Your Order</h1>
+        <p class="subtitle">Fill in your details and we'll create something amazing for your event</p>
+
+        <!-- error messages -->
+        {% if error %}
+        <div class="error-message">⚠️ {{ error }}</div>
+        {% endif %}
+
+        <!-- order form -->
+        <form action="/submit_order" method="POST" class="order-form">
+
+            <!-- customer details -->
+            <div class="form-section">
+                <h2>Your Details</h2>
+
+                <label>Full Name *</label>
+                <input type="text" name="customer_name" placeholder="Enter your full name" required>
+
+                <label>Email Address *</label>
+                <input type="email" name="email" placeholder="Enter your email address" required>
+
+                <label>Phone Number</label>
+                <input type="tel" name="phone" placeholder="Enter your phone number">
+            </div>
+
+            <!-- event details -->
+            <div class="form-section">
+                <h2>Event Details</h2>
+
+                <label>Event Type *</label>
+                <select name="event_type" required>
+                    <option value="">Select an event...</option>
+                    <option value="Birthday">Birthday</option>
+                    <option value="Wedding">Wedding</option>
+                    <option value="Baby Shower">Baby Shower</option>
+                    <option value="Engagement">Engagement</option>
+                    <option value="Graduation">Graduation</option>
+                    <option value="Corporate">Corporate</option>
+                    <option value="Other">Other</option>
+                </select>
+
+                <label>Decor Style *</label>
+                <select name="decor_style" required>
+                    <option value="">Select a style...</option>
+                    <option value="Balloon Arches">Balloon Arches</option>
+                    <option value="Floral Arrangements">Floral Arrangements</option>
+                    <option value="Centrepieces">Centrepieces</option>
+                    <option value="Backdrop Walls">Backdrop Walls</option>
+                    <option value="Custom">Custom</option>
+                </select>
+
+                <label>Color Scheme</label>
+                <input type="text" name="color_scheme" placeholder="e.g. Blush Pink & Gold">
+            </div>
+
+            <!-- logistics -->
+            <div class="form-section">
+                <h2>Event Logistics</h2>
+
+                <label>Event Date *</label>
+                <input type="date" name="event_date" required>
+
+                <label>Venue</label>
+                <input type="text" name="venue" placeholder="Where will the event be held?">
+            </div>
+
+            <!-- special requests -->
+            <div class="form-section">
+                <h2>Special Requests</h2>
+
+                <label>Additional Details</label>
+                <textarea name="special_requests" rows="4" placeholder="Any specific requests, themes, or ideas you'd like to share..."></textarea>
+            </div>
+
+            <!-- submit button -->
+            <button type="submit" class="btn btn-primary btn-large">Submit Order</button>
+        </form>
+    </div>
+
+    <!-- footer -->
+    <footer>
+        <p>&copy; 2024 Festify - Custom Event Decor. All rights reserved.</p>
+    </footer>
+</body>
+</html>
