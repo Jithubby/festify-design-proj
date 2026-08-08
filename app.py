@@ -88,7 +88,9 @@ def view_decor():
 # order form page
 @app.route("/order")
 def order_form():
-    return render_template("order.html")
+    from datetime import date
+    today = date.today().isoformat()
+    return render_template("order.html", today=today)
 
 # submit order
 @app.route("/submit_order", methods=["POST"])

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Festify - Order Confirmed</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- navigation bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">🎨 Festify</a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/decor">Gallery</a>
+                <a href="/order">Order Now</a>
+                <a href="/login">Admin</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- main content -->
+    <div class="container confirmation-container">
+        <div class="confirmation-icon">✅</div>
+        <h1>Order Confirmed!</h1>
+        <p class="confirmation-message">Thank you for your order. We'll be in touch soon to confirm all the details.</p>
+
+        <!-- order summary -->
+        <div class="order-summary">
+            <h2>Order Summary</h2>
+            <p><strong>Customer:</strong> {{ order.customer_name }}</p>
+            <p><strong>Email:</strong> {{ order.email }}</p>
+            <p><strong>Phone:</strong> {{ order.phone if order.phone else 'Not provided' }}</p>
+            <p><strong>Event Type:</strong> {{ order.event_type }}</p>
+            <p><strong>Decor Style:</strong> {{ order.decor_style }}</p>
+            <p><strong>Color Scheme:</strong> {{ order.color_scheme if order.color_scheme else 'Not specified' }}</p>
+            <p><strong>Event Date:</strong> {{ order.event_date }}</p>
+            <p><strong>Venue:</strong> {{ order.venue if order.venue else 'Not specified' }}</p>
+            <p><strong>Special Requests:</strong> {{ order.special_requests if order.special_requests else 'None' }}</p>
+        </div>
+
+        <!-- action buttons -->
+        <div class="confirmation-actions">
+            <a href="/" class="btn btn-primary">Return Home</a>
+            <a href="/order" class="btn btn-secondary">Place Another Order</a>
+        </div>
+    </div>
+
+    <!-- footer -->
+    <footer>
+        <p>&copy; 2026 Festify - Custom Event Decor. All rights reserved.</p>
+    </footer>
+</body>
+</html>

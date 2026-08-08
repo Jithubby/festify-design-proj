@@ -81,7 +81,7 @@
                 <h2>Event Logistics</h2>
 
                 <label>Event Date *</label>
-                <input type="date" name="event_date" required>
+                <input type="date" name="event_date" min="{{ today }}" required>
 
                 <label>Venue</label>
                 <input type="text" name="venue" placeholder="Where will the event be held?">
