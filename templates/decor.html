@@ -8,28 +8,30 @@
 <body>
     <!-- navigation bar -->
     <nav class="navbar">
-        <div class="nav-links">
-    <a href="/">Home</a>
-    <a href="/decor">Gallery</a>
-    <a href="/add-idea">Submit Decor Request</a>
-    <a href="/order">Order Now</a>
-    <a href="/login">Admin</a>
+        <div class="nav-container">
+            <a href="/" class="nav-logo">🎨 Festify</a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/decor">Gallery</a>
+                <a href="/order">Order Now</a>
+                <a href="/login">Admin</a>
+            </div>
         </div>
     </nav>
 
     <!-- main content -->
     <div class="container">
         <h1 class="page-title">Decor Gallery</h1>
-        <p class="subtitle">Browse decor ideas from our community and get inspired for your event</p>
+        <p class="subtitle">Browse decor inspiration and get ideas for your event</p>
 
         <!-- unsplash inspiration section -->
-        <h2>✨ Featured Inspiration</h2>
+        <h2>Featured Inspiration</h2>
         <div class="inspiration-grid">
             {% if unsplash_images %}
                 {% for image in unsplash_images %}
                 <div class="inspiration-card">
                     <img src="{{ image.urls.small }}" alt="Decor inspiration">
-                    <p>📸 {{ image.user.name }}</p>
+                    <p>Photo by {{ image.user.name }}</p>
                 </div>
                 {% endfor %}
             {% else %}
@@ -37,8 +39,8 @@
             {% endif %}
         </div>
 
-        <!-- community decor suggestions -->
-        <h2>💡 Community Decor Ideas</h2>
+        <!-- decor ideas from database -->
+        <h2>Decor Ideas</h2>
         <div class="decor-grid">
             {% if decor_items %}
                 {% for decor in decor_items %}
@@ -51,15 +53,15 @@
                 </div>
                 {% endfor %}
             {% else %}
-                <p>No decor suggestions yet. Be the first to <a href="/">add one</a>!</p>
+                <p>No decor ideas available yet. Check back soon!</p>
             {% endif %}
         </div>
 
         <!-- call to action -->
         <div class="cta-section">
-            <h2>Have a Decor Idea?</h2>
-            <p>Share your decor suggestions with the community!</p>
-            <a href="/" class="btn btn-primary">Share Your Idea</a>
+            <h2>Ready to Order?</h2>
+            <p>Browse our gallery and place an order for your event</p>
+            <a href="/order" class="btn btn-primary">Order Now</a>
         </div>
     </div>
 

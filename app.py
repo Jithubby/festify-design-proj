@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, session
 import sqlite3
 import requests
-import os
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = 'festify_secret_key'
@@ -19,7 +19,7 @@ def create_database():
     connection = sqlite3.connect(DATABASE)
     cursor = connection.cursor()
     
-    # table for decor suggestions (user submitted)
+    # table for decor ideas (admin adds these)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS decor (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -67,77 +67,30 @@ def get_unsplash_images(query="event decor", count=6):
 
 # ===== ROUTES =====
 
+# homepage
 @app.route("/")
 def index():
     return render_template("index.html")
 
+# decor gallery page
 @app.route("/decor")
 def view_decor():
-    # get user submitted decor
     connection = sqlite3.connect(DATABASE)
     cursor = connection.cursor()
     cursor.execute("SELECT * FROM decor")
     decor_items = cursor.fetchall()
     connection.close()
     
-    # get unsplash inspiration images
     images = get_unsplash_images("event decoration ideas", 6)
     
     return render_template("decor.html", decor_items=decor_items, unsplash_images=images)
 
-@app.route("/add", methods=["POST"])
-def add_decor():
-    decor_name = request.form.get("decor_name")
-    event_type = request.form.get("event_type")
-    color_scheme = request.form.get("color_scheme")
-    description = request.form.get("description")
-    price = request.form.get("price")
-    
-    # validations
-    if not decor_name:
-        return render_template("index.html", error="Decor Name is required")
-    if not event_type:
-        return render_template("index.html", error="Event Type is required")
-    if not color_scheme:
-        return render_template("index.html", error="Color Scheme is required")
-    if not description:
-        return render_template("index.html", error="Description is required")
-    if not price:
-        return render_template("index.html", error="Price is required")
-    
-    # only letters and spaces for name, event, color
-    if not all(char.isalpha() or char.isspace() for char in decor_name):
-        return render_template("index.html", error="Decor Name must contain only letters and spaces")
-    if not all(char.isalpha() or char.isspace() for char in event_type):
-        return render_template("index.html", error="Event Type must contain only letters and spaces")
-    
-    allowed = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ &")
-    if not all(char in allowed for char in color_scheme):
-        return render_template("index.html", error="Color Scheme must contain only letters, spaces, and &")
-    
-    # price validation
-    try:
-        price_float = float(price)
-    except ValueError:
-        return render_template("index.html", error="Price must be a valid number")
-    if price_float <= 0:
-        return render_template("index.html", error="Price must be greater than $0")
-    
-    connection = sqlite3.connect(DATABASE)
-    cursor = connection.cursor()
-    cursor.execute("""
-        INSERT INTO decor (decor_name, event_type, color_scheme, description, price)
-        VALUES (?, ?, ?, ?, ?)
-    """, (decor_name, event_type, color_scheme, description, price_float))
-    connection.commit()
-    connection.close()
-    
-    return redirect("/decor")
-
+# order form page
 @app.route("/order")
 def order_form():
     return render_template("order.html")
 
+# submit order
 @app.route("/submit_order", methods=["POST"])
 def submit_order():
     customer_name = request.form.get("customer_name")
@@ -150,6 +103,7 @@ def submit_order():
     venue = request.form.get("venue")
     special_requests = request.form.get("special_requests")
     
+    # validations
     if not customer_name:
         return render_template("order.html", error="Name is required")
     if not email:
@@ -161,7 +115,6 @@ def submit_order():
     if not event_date:
         return render_template("order.html", error="Event date is required")
     
-    from datetime import datetime
     order_date = datetime.now().strftime("%Y-%m-%d %H:%M")
     
     connection = sqlite3.connect(DATABASE)
@@ -188,6 +141,7 @@ def submit_order():
                              'special_requests': special_requests
                          })
 
+# admin login
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -200,6 +154,7 @@ def login():
             return render_template("login.html", error="Invalid username or password")
     return render_template("login.html")
 
+# admin dashboard
 @app.route("/admin")
 def admin():
     if not session.get('logged_in'):
@@ -213,6 +168,7 @@ def admin():
     
     return render_template("admin.html", orders=orders)
 
+# logout
 @app.route("/logout")
 def logout():
     session.pop('logged_in', None)
