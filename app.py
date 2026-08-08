@@ -13,7 +13,7 @@ ADMIN_USERNAME = "anita"
 ADMIN_PASSWORD = "decor2024"
 
 # unsplash api key (get from unsplash.com)
-UNSPLASH_ACCESS_KEY = "YOUR_UNSPLASH_ACCESS_KEY"
+UNSPLASH_ACCESS_KEY = "44Fxyn--Fv1yJNwNAiCVPoEFRt7fZNv80ikmCdEZZIc"
 
 def create_database():
     connection = sqlite3.connect(DATABASE)
