@@ -40,21 +40,21 @@
         </div>
 
         <!-- decor ideas from database -->
-        <h2>Decor Ideas</h2>
+        <h2>Past Event Inspo</h2>
         <div class="decor-grid">
-            {% if decor_items %}
-                {% for decor in decor_items %}
-                <div class="decor-card">
-                    <h3>{{ decor[1] }}</h3>
-                    <p><strong>Event Type:</strong> {{ decor[2] }}</p>
-                    <p><strong>Color Scheme:</strong> {{ decor[3] }}</p>
-                    <p><strong>Description:</strong> {{ decor[4] }}</p>
-                    <p><strong>Price:</strong> ${{ decor[5] }}</p>
-                </div>
-                {% endfor %}
-            {% else %}
-                <p>No decor ideas available yet. Check back soon!</p>
-            {% endif %}
+        {% if past_orders %}
+        {% for order in past_orders %}
+        <div class="decor-card">
+            <h3>{{ order[5] }}</h3>
+            <p><strong>Event Type:</strong> {{ order[4] }}</p>
+            <p><strong>Color Scheme:</strong> {{ order[6] if order[6] else 'Not specified' }}</p>
+            <p><strong>Description:</strong> {{ order[9] if order[9] else 'No special requests' }}</p>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>No past orders yet. Check back soon for inspiration!</p>
+    {% endif %}
+              
         </div>
 
         <!-- call to action -->

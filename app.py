@@ -79,12 +79,27 @@ def view_decor():
     cursor = connection.cursor()
     cursor.execute("SELECT * FROM decor")
     decor_items = cursor.fetchall()
+    
+    # get past orders for inspiration (only last 6)
+    cursor.execute("SELECT * FROM orders ORDER BY id DESC LIMIT 6")
+    past_orders = cursor.fetchall()
     connection.close()
     
-    images = get_unsplash_images("event decoration ideas", 6)
+    # get unsplash images based on past orders
+    unsplash_images = []
+    if past_orders:
+        event_type = past_orders[0][4] if len(past_orders[0]) > 4 else "event"
+        search_term = f"{event_type} decoration ideas"
+        unsplash_images = get_unsplash_images(search_term, 6)
+    else:
+        unsplash_images = get_unsplash_images("event decoration ideas", 6)
     
-    return render_template("decor.html", decor_items=decor_items, unsplash_images=images)
-
+    return render_template("decor.html", 
+                         decor_items=decor_items, 
+                         unsplash_images=unsplash_images,
+                         past_orders=past_orders)
+    
+    
 # order form page
 @app.route("/order")
 def order_form():

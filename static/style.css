@@ -603,3 +603,15 @@ footer {
     color: white;
     transform: translateY(-3px);
 }
+/* decor cards */
+.decor-card h3 {
+    color: #6C63FF;
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+}
+
+.decor-card p {
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 5px;
+}
