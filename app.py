@@ -162,19 +162,56 @@ def admin():
     if not session.get('logged_in'):
         return redirect("/login")
     
+    search_query = request.args.get('search', '')
+    
     connection = sqlite3.connect(DATABASE)
     cursor = connection.cursor()
-    cursor.execute("SELECT * FROM orders ORDER BY id DESC")
+    
+    if search_query:
+        cursor.execute("SELECT * FROM orders WHERE customer_name LIKE ? ORDER BY id DESC", ('%' + search_query + '%',))
+    else:
+        cursor.execute("SELECT * FROM orders ORDER BY id DESC")
+    
     orders = cursor.fetchall()
     connection.close()
     
-    return render_template("admin.html", orders=orders)
+    return render_template("admin.html", orders=orders, search_query=search_query)
 
 # logout
 @app.route("/logout")
 def logout():
     session.pop('logged_in', None)
     return redirect("/login")
+
+# update order status
+@app.route("/update_status/<int:order_id>", methods=["POST"])
+def update_status(order_id):
+    if not session.get('logged_in'):
+        return redirect("/login")
+    
+    status = request.form.get("status")
+    
+    connection = sqlite3.connect(DATABASE)
+    cursor = connection.cursor()
+    cursor.execute("UPDATE orders SET status = ? WHERE id = ?", (status, order_id))
+    connection.commit()
+    connection.close()
+    
+    return redirect("/admin")
+
+# delete order
+@app.route("/delete_order/<int:order_id>", methods=["POST"])
+def delete_order(order_id):
+    if not session.get('logged_in'):
+        return redirect("/login")
+    
+    connection = sqlite3.connect(DATABASE)
+    cursor = connection.cursor()
+    cursor.execute("DELETE FROM orders WHERE id = ?", (order_id,))
+    connection.commit()
+    connection.close()
+    
+    return redirect("/admin")
 
 if __name__ == "__main__":
     create_database()
