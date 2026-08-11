@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Festify - Admin Stats</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">🎨 Festify</a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/decor">Gallery</a>
+                <a href="/order">Order Now</a>
+                <a href="/admin">Dashboard</a>
+                <a href="/logout">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="admin-header">
+            <h1>Admin Statistics</h1>
+            <p>Overview of all orders and analytics</p>
+            <a href="/admin" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-number">{{ total_orders }}</span>
+                <p>Total Orders</p>
+            </div>
+            <div class="stat-card pending">
+                <span class="stat-number">{{ pending_count }}</span>
+                <p>Pending</p>
+            </div>
+            <div class="stat-card progress">
+                <span class="stat-number">{{ progress_count }}</span>
+                <p>In Progress</p>
+            </div>
+            <div class="stat-card completed">
+                <span class="stat-number">{{ completed_count }}</span>
+                <p>Completed</p>
+            </div>
+        </div>
+
+        <div class="stats-section">
+            <h2>Orders by Event Type</h2>
+            <ul class="stats-list">
+                {% for event, count in event_counts %}
+                <li>
+                    <span class="stats-label">{{ event }}</span>
+                    <span class="stats-value">{{ count }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="stats-section">
+            <h2>Most Popular Decor Styles</h2>
+            <ul class="stats-list">
+                {% for style, count in popular_decor %}
+                <li>
+                    <span class="stats-label">{{ style }}</span>
+                    <span class="stats-value">{{ count }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Festify - Custom Event Decor. All rights reserved.</p>
+    </footer>
+</body>
+</html>

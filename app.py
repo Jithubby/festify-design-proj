@@ -1,10 +1,22 @@
 from flask import Flask, render_template, request, redirect, session
 import sqlite3
 import requests
+from flask_mail import Mail, Message
 from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = 'festify_secret_key'
+# Gmail SMTP configuration
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+app.config['MAIL_USERNAME'] = 'festifyau@gmail.com'
+app.config['MAIL_PASSWORD'] = 'gxuk dpmq hkge iogm'  # App password
+app.config['MAIL_DEFAULT_SENDER'] = 'festifyau@gmail.com'
+
+mail = Mail(app)
+
 
 DATABASE = "festify.db"
 
@@ -65,6 +77,69 @@ def get_unsplash_images(query="event decor", count=6):
     except:
         return []
 
+# email confirmation
+def send_order_confirmation(customer_email, customer_name, order_details):
+    """Sends an order confirmation email to the customer."""
+    try:
+        print(f"📧 Attempting to send email to: {customer_email}")
+        
+        msg = Message(
+            subject="Your Festify Order is Confirmed!",
+            recipients=[customer_email],
+            sender='friedricebombed@gmail.com'
+        )
+        
+        msg.html = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <div style="background: #6C63FF; padding: 20px; text-align: center; border-radius: 10px 10px 0 0;">
+                <h1 style="color: white; margin: 0;">🎨 Festify</h1>
+            </div>
+            <div style="background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px;">
+                <h2 style="color: #6C63FF;">Thank you for your order, {customer_name}!</h2>
+                <p>Your order has been received and we'll be in touch soon.</p>
+                
+                <h3 style="color: #6C63FF; margin-top: 30px;">Order Summary</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                        <td style="padding: 8px 0;"><strong>Event Type:</strong></td>
+                        <td style="padding: 8px 0;">{order_details['event_type']}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0;"><strong>Decor Style:</strong></td>
+                        <td style="padding: 8px 0;">{order_details['decor_style']}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0;"><strong>Color Scheme:</strong></td>
+                        <td style="padding: 8px 0;">{order_details.get('color_scheme', 'Not specified')}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0;"><strong>Event Date:</strong></td>
+                        <td style="padding: 8px 0;">{order_details['event_date']}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0;"><strong>Venue:</strong></td>
+                        <td style="padding: 8px 0;">{order_details.get('venue', 'Not specified')}</td>
+                    </tr>
+                </table>
+                
+                <div style="background: #f0f0ff; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                    <p style="margin: 0; color: #555;"><strong>Special Requests:</strong></p>
+                    <p style="margin: 5px 0 0 0; color: #666;">{order_details.get('special_requests', 'None')}</p>
+                </div>
+                
+                <p style="margin-top: 30px; color: #888; font-size: 0.9rem;">— The Festify Team</p>
+            </div>
+        </body>
+        </html>
+        """
+        
+        mail.send(msg)
+        print(f"✅ Confirmation email sent to {customer_email}")
+        return True
+    except Exception as e:
+        print(f"❌ Failed to send email: {e}")
+        return False
 # ===== ROUTES =====
 
 # homepage
@@ -144,6 +219,16 @@ def submit_order():
           color_scheme, event_date, venue, special_requests, order_date))
     connection.commit()
     connection.close()
+        # send confirmation email
+    order_details = {
+        'event_type': event_type,
+        'decor_style': decor_style,
+        'color_scheme': color_scheme,
+        'event_date': event_date,
+        'venue': venue,
+        'special_requests': special_requests
+    }
+    send_order_confirmation(email, customer_name, order_details)
     
     return render_template("confirmation.html", 
                          order={
@@ -227,6 +312,55 @@ def delete_order(order_id):
     connection.close()
     
     return redirect("/admin")
+
+@app.route("/admin/stats")
+def admin_stats():
+    if not session.get('logged_in'):
+        return redirect("/login")
+    
+    connection = sqlite3.connect(DATABASE)
+    cursor = connection.cursor()
+    
+    # total orders
+    cursor.execute("SELECT COUNT(*) FROM orders")
+    total_orders = cursor.fetchone()[0]
+    
+    # count by status
+    cursor.execute("SELECT COUNT(*) FROM orders WHERE status = 'Pending'")
+    pending_count = cursor.fetchone()[0]
+    
+    cursor.execute("SELECT COUNT(*) FROM orders WHERE status = 'In Progress'")
+    progress_count = cursor.fetchone()[0]
+    
+    cursor.execute("SELECT COUNT(*) FROM orders WHERE status = 'Completed'")
+    completed_count = cursor.fetchone()[0]
+    
+    # orders by event type
+    cursor.execute("""
+        SELECT event_type, COUNT(*) FROM orders 
+        GROUP BY event_type 
+        ORDER BY COUNT(*) DESC
+    """)
+    event_counts = cursor.fetchall()
+    
+    # most popular decor styles
+    cursor.execute("""
+        SELECT decor_style, COUNT(*) FROM orders 
+        GROUP BY decor_style 
+        ORDER BY COUNT(*) DESC 
+        LIMIT 5
+    """)
+    popular_decor = cursor.fetchall()
+    
+    connection.close()
+    
+    return render_template("admin_stats.html", 
+                         total_orders=total_orders,
+                         pending_count=pending_count,
+                         progress_count=progress_count,
+                         completed_count=completed_count,
+                         event_counts=event_counts,
+                         popular_decor=popular_decor)
 
 if __name__ == "__main__":
     create_database()
