@@ -77,5 +77,98 @@
     <footer>
         <p>&copy; 2026 Festify - Custom Event Decor. All rights reserved.</p>
     </footer>
+
+        </footer>
+
+    <!-- ===== CHAT BUTTON AND POPUP ===== -->
+    <!-- floating chat button -->
+    <button class="chat-button" onclick="toggleChat()">
+        <button class="chat-button" onclick="toggleChat()">
+        💬
+    </button>
+
+    <!-- chat popup -->
+    <div class="chat-popup" id="chatPopup">
+        <div class="chat-popup-header">
+            <h3>🎨 Festify AI</h3>
+            <span class="chat-close" onclick="toggleChat()">x</span>
+        </div>
+        <div class="chat-popup-messages" id="popupMessages">
+            <div class="chat-message bot-message">
+                <strong>🤖 Festify AI:</strong>
+                <p>Hello! Ask me about decor ideas, color schemes, or event planning!</p>
+            </div>
+        </div>
+        <div class="chat-popup-input">
+            <input type="text" id="popupInput" placeholder="Type your question..." onkeypress="if(event.key==='Enter') sendPopupMessage()">
+            <button onclick="sendPopupMessage()" class="btn btn-primary">Send</button>
+        </div>
+    </div>
+
+    <script>
+        function toggleChat() {
+            const popup = document.getElementById('chatPopup');
+            popup.classList.toggle('show');
+        }
+
+        function sendPopupMessage() {
+            const input = document.getElementById('popupInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            const messagesDiv = document.getElementById('popupMessages');
+            
+            messagesDiv.innerHTML += `
+                <div class="chat-message user-message">
+                    <strong>👤 You:</strong>
+                    <p>${message}</p>
+                </div>
+            `;
+            
+            input.value = '';
+            
+            messagesDiv.innerHTML += `
+                <div class="chat-message bot-message" id="popupLoading">
+                    <strong>🤖 Festify AI:</strong>
+                    <p>Thinking...</p>
+                </div>
+            `;
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            
+            fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'message=' + encodeURIComponent(message)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('popupLoading').remove();
+                messagesDiv.innerHTML += `
+                    <div class="chat-message bot-message">
+                        <strong>🤖 Festify AI:</strong>
+                        <p>${data.reply}</p>
+                    </div>
+                `;
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            })
+            .catch(() => {
+                document.getElementById('popupLoading').remove();
+                messagesDiv.innerHTML += `
+                    <div class="chat-message bot-message">
+                        <strong>🤖 Festify AI:</strong>
+                        <p>Sorry, I'm having trouble connecting. Please try again.</p>
+                    </div>
+                `;
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            });
+        }
+    </script>
+    <!-- ===== END CHAT CODE ===== -->
+
+</body>
+</html>
 </body>
 </html>

@@ -1,8 +1,9 @@
 from flask import Flask, render_template, request, redirect, session
-import sqlite3
+import sqlite3 
 import requests
 from flask_mail import Mail, Message
 from datetime import datetime
+import openai
 
 app = Flask(__name__)
 app.secret_key = 'festify_secret_key'
@@ -26,6 +27,10 @@ ADMIN_PASSWORD = "decor2024"
 
 # unsplash api key (get from unsplash.com)
 UNSPLASH_ACCESS_KEY = "44Fxyn--Fv1yJNwNAiCVPoEFRt7fZNv80ikmCdEZZIc"
+
+# Agnes AI configuration (after your other configs)
+AGNES_API_KEY = "sk-Xb4JdXX1ueAcR0csBYLZTWyYeZev25SbKnma6Qm3q9SwqLxF"  
+AGNES_BASE_URL = "https://apihub.agnes-ai.com/v1"
 
 def create_database():
     connection = sqlite3.connect(DATABASE)
@@ -140,6 +145,41 @@ def send_order_confirmation(customer_email, customer_name, order_details):
     except Exception as e:
         print(f"❌ Failed to send email: {e}")
         return False
+
+def get_ai_response(user_message):
+    """Gets a response from Agnes AI for the chatbot."""
+    try:
+        client = openai.OpenAI(
+            api_key=AGNES_API_KEY,
+            base_url=AGNES_BASE_URL
+        )
+        
+        response = client.chat.completions.create(
+            model="agnes-2.0-flash",
+            messages=[
+                {"role": "system", "content": """You are a strict event decor assistant for Festify. 
+You ONLY answer questions about:
+- Decor ideas and inspiration
+- Color schemes and themes
+- Event planning for weddings, birthdays, baby showers, engagements, graduations, and corporate events
+- Decor styles and trends
+- Festify's services and ordering process
+
+If a question is NOT about decor, events, or Festify, politely respond:
+"I'm sorry, I can only answer questions about event decor and Festify. How can I help with your event planning?"
+
+Do NOT answer any questions outside these topics. Be friendly and helpful for decor-related questions."""},
+                {"role": "user", "content": user_message}
+            ],
+            max_tokens=200,
+            temperature=0.7
+        )
+        
+        return response.choices[0].message.content
+    except Exception as e:
+        print(f"❌ AI Error: {e}")
+        return "Sorry, I'm having trouble connecting right now. Please try again later."
+
 # ===== ROUTES =====
 
 # homepage
@@ -362,6 +402,19 @@ def admin_stats():
                          event_counts=event_counts,
                          popular_decor=popular_decor)
 
+@app.route("/chat", methods=["POST"])
+def chat():
+    """Handles chatbot messages."""
+    user_message = request.form.get("message")
+    
+    if not user_message:
+        return {"error": "No message provided"}, 400
+    
+    ai_reply = get_ai_response(user_message)
+    return {"reply": ai_reply}
+
 if __name__ == "__main__":
     create_database()
     app.run(debug=True)
+
+
