@@ -221,8 +221,7 @@ def order_form():
     from datetime import date
     today = date.today().isoformat()
     return render_template("order.html", today=today)
-
-# submit order
+    
 @app.route("/submit_order", methods=["POST"])
 def submit_order():
     customer_name = request.form.get("customer_name")
@@ -247,6 +246,11 @@ def submit_order():
     if not event_date:
         return render_template("order.html", error="Event date is required")
     
+    # check if name contains only letters and spaces
+    if not all(char.isalpha() or char.isspace() for char in customer_name):
+        return render_template("order.html", error="Name must contain only letters and spaces")
+    
+    # ===== INDENT EVERYTHING BELOW THIS =====
     order_date = datetime.now().strftime("%Y-%m-%d %H:%M")
     
     connection = sqlite3.connect(DATABASE)
@@ -259,7 +263,8 @@ def submit_order():
           color_scheme, event_date, venue, special_requests, order_date))
     connection.commit()
     connection.close()
-        # send confirmation email
+    
+    # send confirmation email
     order_details = {
         'event_type': event_type,
         'decor_style': decor_style,
@@ -282,7 +287,6 @@ def submit_order():
                              'venue': venue,
                              'special_requests': special_requests
                          })
-
 # admin login
 @app.route("/login", methods=["GET", "POST"])
 def login():
